@@ -1,0 +1,15 @@
+<component name="libraryTable">
+  <library name="org.apache.camel:camel-base64:2.19.1" type="repository">
+    <properties maven-id="org.apache.camel:camel-base64:2.19.1" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/camel-base64-2.19.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/camel-core-2.19.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/slf4j-api-1.7.22.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-codec-1.10.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jaxb-core-2.2.11.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jaxb-impl-2.2.11.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
