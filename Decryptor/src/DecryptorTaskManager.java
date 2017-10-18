@@ -55,7 +55,7 @@ class DecryptorTaskManager {
         ExecutorService executor = Executors.newWorkStealingPool();
         List<Future<String>> list = new ArrayList();
 
-        for(int i = 0; i < 2; i++) {
+        for(int i = 0; i < 15; i++) {
             Callable<String> worker = new DecryptorTask(i, hexBase[i + 1], keypiece, initVector, encrypted);
             Future<String> submit = executor.submit(worker);
             list.add(submit);
@@ -64,10 +64,9 @@ class DecryptorTaskManager {
         System.out.println("Amount of tasks: " + list.size());
 
         for (Future f : list) {
-            Future future = f;
             try {
-//                if (!(future.get()).equals(""))
-                    System.out.println((String) future.get());
+                if (!(f.get()).equals(""))
+                    System.out.println((String) f.get());
             } catch (ExecutionException | InterruptedException e) {
                 e.printStackTrace();
             }
@@ -97,12 +96,12 @@ class DecryptorTaskManager {
         private String bruteForceDecrypt(int alphabetPosition, String prefix, char maxPrefix, int k) {
             if (k == 0) {
                 String res = decrypt(prefix + keypiece);
-                if (res != null && analyzeSolution(res)) {
-                    printToConsole("Possible solution: " + res + "\n\n", getName());
-                    if (isMsg(res)) {
-                        System.out.println("Before return GOOD solution");
+//                if (res != null && analyzeSolution(res)) {
+                if (res != null && isMsg(res)) {
+                    printToConsole("Possible solution: " + res + " from prefix: " + prefix + "\n\n", getName());
+//                    if (isMsg(res)) {
                         return ("SOLUTION: " + res + "\nPREFIX: " + prefix + "\n:" + getName());
-                    }
+//                    }
                 }
                 return "";
 
@@ -110,7 +109,6 @@ class DecryptorTaskManager {
                 for(int i = alphabetPosition; i < alphabetLength; ++i) {
                     String newPrefix = prefix + hexBase[i];
                     if (k == 1 && prefix.charAt(0) == maxPrefix) {
-                        System.out.println(getName() + " => Done at: " + newPrefix);
                         return "";
                     }
                     bruteForceDecrypt(0, newPrefix, maxPrefix, k - 1);
@@ -143,15 +141,18 @@ class DecryptorTaskManager {
         }
 
         private boolean isMsg(String res) {
+//            int max = Math.min(res.length());
+            String substring = res.substring(0,res.length());
             Pattern p = Pattern.compile("[a-zA-Z\\w\\d\\s\\p{Punct}ąćęłńóśżźĄĆĘŁŃÓŚŻŹ]*");
-            Matcher m = p.matcher(res);
+//            Matcher m = p.matcher(res);
+            Matcher m = p.matcher(substring);
             return m.matches();
         }
 
         private boolean analyzeSolution(String res) {
             for(int i = 0; i < res.length(); ++i) {
                 int v = res.charAt(i);
-                if (v > 1000)
+                if (v > 700)
                     return false;
             }
             return true;
@@ -159,7 +160,6 @@ class DecryptorTaskManager {
 
         public String call() throws Exception {
             String result =  bruteForceDecrypt(minPrefix, "", maxPrefix, searchSpaceSize);
-            System.out.println("GOT THE RESULT");
             return result;
         }
     }

@@ -10,13 +10,16 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="CoverageDataManager">
+    <SUITE FILE_PATH="coverage/Decryptor$Decrypt.coverage" NAME="Decrypt Coverage Results" MODIFIED="1508363367837" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
+  </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file leaf-file-name="Decrypt.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Decrypt.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="187">
-              <caret line="30" column="44" lean-forward="false" selection-start-line="30" selection-start-column="44" selection-end-line="30" selection-end-column="44" />
+            <state relative-caret-position="338">
+              <caret line="47" column="52" lean-forward="false" selection-start-line="47" selection-start-column="52" selection-end-line="47" selection-end-column="52" />
               <folding>
                 <element signature="docComment;method#main#0;class#Decrypt#0" expanded="false" />
               </folding>
@@ -27,12 +30,11 @@
       <file leaf-file-name="DecryptorTaskManager.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/DecryptorTaskManager.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="253">
-              <caret line="117" column="26" lean-forward="true" selection-start-line="117" selection-start-column="26" selection-end-line="117" selection-end-column="26" />
+            <state relative-caret-position="158">
+              <caret line="59" column="55" lean-forward="true" selection-start-line="59" selection-start-column="55" selection-end-line="59" selection-end-column="55" />
               <folding>
                 <element signature="method#decrypt#0;class#DecryptorTask#0;class#DecryptorTaskManager#0" expanded="false" />
                 <element signature="method#hexStringToByteArray#0;class#DecryptorTask#0;class#DecryptorTaskManager#0" expanded="false" />
-                <element signature="method#isMsg#0;class#DecryptorTask#0;class#DecryptorTaskManager#0" expanded="false" />
                 <element signature="method#analyzeSolution#0;class#DecryptorTask#0;class#DecryptorTaskManager#0" expanded="false" />
               </folding>
             </state>
@@ -57,6 +59,8 @@
       <find>Star</find>
       <find>print</find>
       <find>cipher.</find>
+      <find>1000</find>
+      <find>from pre</find>
     </findStrings>
     <replaceStrings>
       <replace>System.out.println(</replace>
@@ -283,16 +287,15 @@
       <workItem from="1508016777773" duration="4632000" />
       <workItem from="1508027983809" duration="45531000" />
       <workItem from="1508245118476" duration="9745000" />
-      <workItem from="1508359535534" duration="1075000" />
+      <workItem from="1508359535534" duration="3915000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="60990000" />
+    <option name="totallyTimeSpent" value="63830000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="33" y="5" width="1707" height="1015" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -302,8 +305,9 @@
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32984033" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2901024" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4755404" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Coverage" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32969034" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -444,7 +448,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/DecryptorThreadManager.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="426">
+        <state relative-caret-position="1581">
           <caret line="104" column="55" lean-forward="false" selection-start-line="104" selection-start-column="55" selection-end-line="104" selection-end-column="55" />
           <folding />
         </state>
@@ -452,8 +456,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Decrypt.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="30" column="44" lean-forward="false" selection-start-line="30" selection-start-column="44" selection-end-line="30" selection-end-column="44" />
+        <state relative-caret-position="338">
+          <caret line="47" column="52" lean-forward="false" selection-start-line="47" selection-start-column="52" selection-end-line="47" selection-end-column="52" />
           <folding>
             <element signature="docComment;method#main#0;class#Decrypt#0" expanded="false" />
           </folding>
@@ -462,12 +466,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/DecryptorTaskManager.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="253">
-          <caret line="117" column="26" lean-forward="true" selection-start-line="117" selection-start-column="26" selection-end-line="117" selection-end-column="26" />
+        <state relative-caret-position="158">
+          <caret line="59" column="55" lean-forward="true" selection-start-line="59" selection-start-column="55" selection-end-line="59" selection-end-column="55" />
           <folding>
             <element signature="method#decrypt#0;class#DecryptorTask#0;class#DecryptorTaskManager#0" expanded="false" />
             <element signature="method#hexStringToByteArray#0;class#DecryptorTask#0;class#DecryptorTaskManager#0" expanded="false" />
-            <element signature="method#isMsg#0;class#DecryptorTask#0;class#DecryptorTaskManager#0" expanded="false" />
             <element signature="method#analyzeSolution#0;class#DecryptorTask#0;class#DecryptorTaskManager#0" expanded="false" />
           </folding>
         </state>

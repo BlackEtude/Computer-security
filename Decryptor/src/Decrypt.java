@@ -32,24 +32,19 @@ public class Decrypt {
         new DecryptorTaskManager(keypiece, initVector, encrypted);
         //a
 //        String keypiece = "c122c4efcc5bf7496b444e424ef872b177382c13b09f3979c48bb724"; // 256 bit key
-//        String initVector = "8bd996f32219d7194510973f1b0c5f18"; // 32 bytes IV
-//        String encrypted = "pTys94RSq1YsaL2WrqSHSgxSFLfSRBDsvsrE1SRrYrZfDABnqexeZkPCbVpKcqzxj1YbIKh6QTne+hUy0" +
-//                "B7nitAHiIgrkC/+z3apX2hsBPqigPmSV5vs/iE5Q0Dq0oq5pWqz6/4y77hWw900Fy/IbSlQl+w5ujJWwyNJ3RxOehuVxujR" +
-//                "ghoHjm3N1jJTURqKliY97fDvP+QVHi2D3LcYQ1notxwBuEDR7EptVXGgObMaoFMzRAvySFotOBObK96GhVYziEI19hsURBTjwsX" +
-//                "OF/GDBOhqmW9BwMfhC3o12eumFPEJgqzf1IF6ECm01HFr8fUucWo31YNgSJOF9NiWmYjqaLpEaGvxyYwn+N2y6HswcKP7STa+yA4bDr" +
-//                "I77VIhCVs7FhXoZM1bK3+TWQjZKh/8eQ7Vdg/xCYAj7cEGRykk6fyHRr4nWvGKiaK1S+XOGH1P5RnnfddFYaYmT5EhkX234MFSm68U3P9qF" +
-//                "9OFzAwyiZJeVriTaj+1dFKnkAeCg8ycKK/YgGKrhSCK/WcEXg==";
+//        String initVector = "e2605c0289a4962a1c4bb90095d469d4"; // 32 bytes IV
+//        String encrypted = "J2p8mphOD/ZrpKMLIm/tKBwqVaNHK0SH1NANrVYImEWB+xMRR0Oa21DDMKjQTg4T2QPL7rUnT4AxgAZPcdiz1ZeiR1HQbOINGhPULENfuzJ7m5MOVChPvqpZVwDh7zVA5fnpzN0dhJHN8UvCOAx1oRfUNTQDZtKaHqPf+bBhrQiAOkSFPKNpGwBZ6xZjfuZUJkBHVWUw2SLS5/rT+UcR3V0y68qD0n78jULOat9GjhK95ZschRYy0ExK6i6K26HzUes97BtRy2qrrXDOePyFVQqBtRGw1Bz0wPVrPk8vifoSu15vhxs1vzLCCMD+uTRTVTTNhv20OHvmZs1kYlzOdxi8oG45o3m0QnEAACXOoGZZjcbXZm1tYbwPzM+1qT9vI4nG1N3TXUdj1SHT24tX09jrLRQWVcaADVDtm/DOfIiwDK9k6FhmdQPMbzgrBqEpYH+lr0lyGMSQ5AmuSJxNqLlHQ1K7sd2sURtYqvMvpqSTa7QKUA0QzqPVP080cSt7A/GOqIP5y2IhO+fDtxGy3A==";
 
         //Alamakota.Ale...
-//        keypiece = "f7fc36e8003e30d2522a66e97abc549d7870b258234efc9f4ee0ee42"; // 256 bit key
-//        initVector = "33a427fd1b213f4eb031ce90d92ee663"; // 32 bytes IV
-//        encrypted = "2+AemYdrAnsFVK6/VFNJlmiQuwyQBNEyfra4yxaSBRRKlsjVPGQSwDxqSXA7DROf4ObH+lXf92b60Cx1t629pjN5ou86gCJXHku2jdNXhlm1SHPNZCOtN/W8oTnG5aMsuuKPNkqOYJPuMc18zKz5NA==";
+        keypiece = "f7fc36e8003e30d2522a66e97abc549d7870b258234efc9f4ee0ee42"; // 256 bit key
+        initVector = "33a427fd1b213f4eb031ce90d92ee663"; // 32 bytes IV
+        encrypted = "2+AemYdrAnsFVK6/VFNJlmiQuwyQBNEyfra4yxaSBRRKlsjVPGQSwDxqSXA7DROf4ObH+lXf92b60Cx1t629pjN5ou86gCJXHku2jdNXhlm1SHPNZCOtN/W8oTnG5aMsuuKPNkqOYJPuMc18zKz5NA==";
     }
     //EASY DATA
     //"Ala ma kota"
     //PREFIX:7edbf790
     //key = "7edbf790 f7fc36e8003e30d2522a66e97abc549d7870b258234efc9f4ee0ee42"
-    private static String keypiece = "bf790f7fc36e8003e30d2522a66e97abc549d7870b258234efc9f4ee0ee42"; // 57bits
+    private static String keypiece = "f7fc36e8003e30d2522a66e97abc549d7870b258234efc9f4ee0ee42"; // 57bits
     private static String initVector = "33a427fd1b213f4eb031ce90d92ee663"; // 32 bytes IV
     private static String encrypted = "uu9KqHy1r4DrqjhvQFG+YQ==";
 }
