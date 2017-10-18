@@ -29,7 +29,7 @@ public class Decrypt {
 
 
     public static void main(String[] args) {
-        new DecryptorThreadManager(keypiece, initVector, encrypted);
+        new DecryptorTaskManager(keypiece, initVector, encrypted);
         //a
 //        String keypiece = "c122c4efcc5bf7496b444e424ef872b177382c13b09f3979c48bb724"; // 256 bit key
 //        String initVector = "8bd996f32219d7194510973f1b0c5f18"; // 32 bytes IV
