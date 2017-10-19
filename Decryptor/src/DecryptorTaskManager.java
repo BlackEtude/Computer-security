@@ -1,12 +1,6 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by Fernflower decompiler)
-//
-
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -31,7 +25,7 @@ class DecryptorTaskManager {
     private long startTime;
 
     DecryptorTaskManager (String keypiece, String iv, String encrypted) {
-        this.alphabetLength = this.hexBase.length;
+        this.alphabetLength = hexBase.length;
         this.startTime = System.currentTimeMillis();
         this.keypiece = keypiece;
         initVector = iv;
@@ -60,6 +54,9 @@ class DecryptorTaskManager {
             Future<String> submit = executor.submit(worker);
             list.add(submit);
         }
+        Callable<String> worker = new DecryptorTask(15, 'g', keypiece, initVector, encrypted);
+        Future<String> submit = executor.submit(worker);
+        list.add(submit);
 
         System.out.println("Amount of tasks: " + list.size());
 
@@ -75,6 +72,7 @@ class DecryptorTaskManager {
     }
 
     class DecryptorTask implements Callable<String> {
+        int counter;
         private String keypiece;
         private String initVector;
         private String encrypted;
@@ -87,6 +85,7 @@ class DecryptorTaskManager {
             this.initVector = iv;
             this.encrypted = encrypted;
             this.maxPrefix = maxPrefix;
+            counter = 0;
         }
 
         String getName() {
@@ -95,6 +94,10 @@ class DecryptorTaskManager {
 
         private String bruteForceDecrypt(int alphabetPosition, String prefix, char maxPrefix, int k) {
             if (k == 0) {
+                counter++;
+                if(getName().equals("0") && counter % 30000 == 0) {
+                    System.out.println(prefix);
+                }
                 String res = decrypt(prefix + keypiece);
 //                if (res != null && analyzeSolution(res)) {
                 if (res != null && isMsg(res)) {
@@ -108,8 +111,12 @@ class DecryptorTaskManager {
             } else {
                 for(int i = alphabetPosition; i < alphabetLength; ++i) {
                     String newPrefix = prefix + hexBase[i];
-                    if (k == 1 && prefix.charAt(0) == maxPrefix) {
-                        return "";
+                    if (k == 1) {
+                        if(prefix.charAt(0) == maxPrefix) {
+                            System.out.println("Terminate this task");
+                            //terminate this task
+                            return "";
+                        }
                     }
                     bruteForceDecrypt(0, newPrefix, maxPrefix, k - 1);
                 }
@@ -125,7 +132,7 @@ class DecryptorTaskManager {
                 cipher.init(2, skeySpec, iv);
                 byte[] original = cipher.doFinal(Base64.decodeBase64(encrypted));
                 return new String(original);
-            } catch (Exception var6) {
+            } catch (Exception e) {
                 return null;
             }
         }
@@ -142,7 +149,7 @@ class DecryptorTaskManager {
 
         private boolean isMsg(String res) {
 //            int max = Math.min(res.length());
-            String substring = res.substring(0,res.length());
+            String substring = res.substring(0, res.length());
             Pattern p = Pattern.compile("[a-zA-Z\\w\\d\\s\\p{Punct}ąćęłńóśżźĄĆĘŁŃÓŚŻŹ]*");
 //            Matcher m = p.matcher(res);
             Matcher m = p.matcher(substring);
@@ -152,7 +159,7 @@ class DecryptorTaskManager {
         private boolean analyzeSolution(String res) {
             for(int i = 0; i < res.length(); ++i) {
                 int v = res.charAt(i);
-                if (v > 700)
+                if (v > 400)
                     return false;
             }
             return true;
@@ -161,6 +168,8 @@ class DecryptorTaskManager {
         public String call() throws Exception {
             String result =  bruteForceDecrypt(minPrefix, "", maxPrefix, searchSpaceSize);
             return result;
+//            System.out.println("min: " + minPrefix + ", max: " + maxPrefix);
+//            return "";
         }
     }
 }
