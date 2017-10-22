@@ -1,0 +1,56 @@
+﻿Jak wynika z naszych rozmow z hierarchami, biskupi maja dosc kroczacego fiaska licznych programow duszpasterskich i terapeutycznych, majacych zmieniac orientacje seksualna na taka, ktora "jest blizsza Bogu".
+
+Jak bogactwo zmienia czlowieka? Czy pieniadze rzeczywiscie szczescia nie daja? - na te pytania chce podczas 10-letniego happeningu odpowiedziec polski artysta, ktory wlasnie otrzymal 150 mln euro (600 mln zl) unijnej dotacji na projekt "10 lat bogactwa. Obserwacja uczestniczaca".
+
+I tak jak widać na zdjęciu z posłem Liroyem od teraz fotoedytorzy muszą pikselować twarze wszystkich polityków, którzy nie wyglądają na inteligentnych.
+
+1) Ile kluczy sprawdza program?
+	Worst case: n-kluczy
+	Avg case: 3n/4 kluczy
+
+	400s na złamanie 7bit klucza (670 000 kluczy/s)
+
+2) Wartość oczekiwana liczby "sekretów", że uzyskamy ten sam klucz?
+	Jest to tzw kolizja. Podobne do problemu urodzinowego.
+	Prawdopodobieństwo jest pomijalnie małe, dopóki mamy znacznie mniej niż 2^128 wartości.
+	Prawdopodobieństwo kolizji ~ 1/2*(n/2^(128))^2.
+
+3) Ile kluczy trzeba by sprawdzić, gdyby powstawały one jako wartość prawdziwie losowa?
+	2^(4*64) = 2^(256) kluczy
+
+4) Koszty łamania.
+	Pobór: 40W (CPU) + 65W (Base) = 105W
+	Średnia cena Tauron = 0,50zł/kWh  [z podatkami, akcyzą, dystrybutorem]
+
+	Cena pracy mojego deszyfrującego PC (1 CPU):
+	1,26zł/24h
+	0,05zł/h 
+
+	złamanych kluczy: 670000/s, 57 888 000 000 /24h
+	
+	2^48 => 4863 CPUs => 8 248.67zł
+	2^56 => 1244777 CPUs => 2 111 405.68zł
+	2^64 => 3132938871 CPUs => 5 314 128 508.98zł
+	2^80 => 2053202819e5 CPUs => 304 320 100 782 000 000zł
+	2^100 => 2152939199e11 CPUs => 
+
+
+	EC2 - 36 vCPU c4.8xlarge, 1.817$/h => 43,61$/24h ~ 156,55zł/24h
+	~ 46 047 272 730 kluczy/24h
+	2^48 => 6113 CPUs => 266 587,93$
+	2^56 => 1 564 862 CPUs => 68 243 631,82$
+	2^64 => 400 604 488 CPUs => 17 470 361 720$
+	2^80 => 2625401567e4 CPUs => 1 144 937 623 000 000$
+	2^100 => 2752933073e10 CPUs => 1200554113000000000000$
+
+
+PC SPEC:
+MSI Z170A Gaming Pro Carbon
+Intel Core i7-6700K 4GHz->4.40GHz (OC) 8MB cache [TDP: 95W]
+MSI GeForce GTX1080 Gaming X 8GB GDDR5X [180W , 2560CUDA cores] 
+16GB DDR4 RAM
+XFX 850W 80+Gold (90% sprawność do 100C)
+GOODRAM 240GB 2,5" SATA SSD Iridium PRO [R:560MB/s, W:530MB/s]
+MS Windows 10 Pro 64bit
+
+Avg temp CPU - 67C, 100% usage
