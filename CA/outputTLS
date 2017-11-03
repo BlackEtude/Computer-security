@@ -1,0 +1,44 @@
+This is ApacheBench, Version 2.3 <$Revision: 1807734 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking smayl.pwr.edu.pl (be patient)
+
+
+Server Software:        
+Server Hostname:        smayl.pwr.edu.pl
+Server Port:            9191
+SSL/TLS Protocol:       TLSv1.2,ECDHE-RSA-AES256-GCM-SHA384,2048,256
+TLS Server Name:        smayl.pwr.edu.pl
+
+Document Path:          /mail/
+Document Length:        0 bytes
+
+Concurrency Level:      100
+Time taken for tests:   17.917 seconds
+Complete requests:      1000
+Failed requests:        0
+Total transferred:      0 bytes
+HTML transferred:       0 bytes
+Requests per second:    55.81 [#/sec] (mean)
+Time per request:       1791.738 [ms] (mean)
+Time per request:       17.917 [ms] (mean, across all concurrent requests)
+Transfer rate:          0.00 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:      140 1619 1840.7   1190   15181
+Processing:     0    8 148.6      0    4646
+Waiting:        0    0   0.0      0       0
+Total:        142 1627 1846.0   1190   15182
+
+Percentage of the requests served within a certain time (ms)
+  50%   1190
+  66%   1243
+  75%   1296
+  80%   1361
+  90%   2190
+  95%   4157
+  98%   9773
+  99%  14931
+ 100%  15182 (longest request)

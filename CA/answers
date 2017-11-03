@@ -1,0 +1,32 @@
+1. czym jest certificate pinning? dlaczego się go stosuje?
+HTTP Public Key Pinning (HPKP) - mechanizm pozwalający na poinformowanie klienta(przeglądarki) o powiązaniu danego klucza publicznego z konkretnym serwerem(domeną). Zabezpiecza HTTPS przed próbami podszywania poprzez sfałszowane certyfikaty klucza publicznego. Dostarcza zbiór kluczy publ do przeglądarki które powinny być jedynymi zaufanymi dla połączenia z tą domeną.
+Działanie: nagłówek HTTP Public-Key-Pins umożliwia serwerowi przekazanie przeglądarce informacji o tym, jakiej wartości klucza publ powinna się spodziewać (przez określony czas) podczas nawiązywania połączenia TLS z hostem. Co najmniej jeden z kluczy publ certyfikatu musi być zgodny z "przypiętym" kluczem publ, aby łańcuch był uznnany przez użytkownika za prawidłowy. Standard RFC 7469 jedyna dozwolona funkcja skrótu to SHA-256.
+
+https://en.wikipedia.org/wiki/HTTP_Public_Key_Pinning + PL
+
+2. czym jest Extended validation dla certyfikatów SSL?
+EV SSL - certyfikat rozszerzonej walidacji. Specjalny typ certyfikatu X.509, który wymaga obszerniejszego postępowania z wnioskiem podmiotu przez Urząd Ceryfikacji przed wydaniem.
+Technologia EV chroni przed atakami phishingowymi.
+
+3. kto da się nabrać na taki atak (kontekscie zadania 3)?
+
+4. czym są CRL, OCSP?
+CRL (Certificate Revocation List) - lista certyfikatów unieważnionych lub wstrzymanych przed terminem wygaśnięcia z różnych powodów przez organ certyfikujący. Publikowana jest przez wystawcę (CA), zawiera numery seryjne certyfikatów. Powód: wstrzymanie (może zostac przywrócony), uniewazniony (permanentnie cofnięty, np z powodu kradzieży/zgubienia klucza priv).
+OCSP (Online Certificate Status Protocol) - stosowane zamiast publikacji list CRL, jest to weryfikacja online. Protokół komunikacyjny między serwerem usługowym a systemem odbiorcy usług certyfikacyjnych. Na określone zapytanie o status certyfikatu odpowiada "poprawny", "unieważniony", "nieznany". Praktyczniejsze niż CRL.
+Porównanie: "lżejsze" zapytanie OCSP (krótsza odpowiedź niż w przypadku CRL), OCSP ujawnia nieszyfrowane (strony trzecie mogą nasłuchiwać) informacje, że konkretny host używa konkretnego certyfikatu w określonym czasie.
+
+https://en.wikipedia.org/wiki/Online_Certificate_Status_Protocol
+
+5. co się stanie, gdy ktoś pozna klucz tajny serwera www?
+
+6. co się stanie, gdy ktoś pozna klucz tajny CA, który podpisywał certyfikat serwera www?
+
+7. co się stanie, gdy ktoś pozna klucz tajny jakiegoś CA?
+
+8. co się stanie, gdy pewne CA wydaje certyfikaty w oparciu o słabe funkcje haszujące np. MD5?
+
+9. czym są downgrade attacks na TLS?
+Downgrade attack (aktualizacja wsteczna) - atak w wyniku którego następuje rezygnacja z bezpiecznego, wysokiej jakości trybu pracy (np szyfrowane połączenie) na rzecz starego trybu o niższym poziomie bezpieczeństwa (dostępny w celu zapewnienia kompatybilności wstecznej dla starszych systemów). Ta luka umożliwia ustanowienie starszej wersji TLS pomiędzy klientem a serwerem.
+
+10. czym jest HTTP Strict Transport Security (HSTS)?
+HTTP Strict Transport Security - mechanizm bezpieczeństwa sieci, który chroni przed atakami jak wymuszone zmniejszenie poziomu protokołu(downgrade attacks) lub przechwytywanie sesji(cookie hijacking). Dzięki niemu do serwerów można połączyć się tylko przy użyciu przeglądarek korzystających z bezpiecznych połączeń HTTPS, nie dopuszcza do niebezpiecznych połączeń HTTP. 
