@@ -18,7 +18,7 @@ session_start();
 		</header>
 
 		<div id="points_table_container">
-		<h2 id="points_title">Saldo: <?php echo $balance;?> PLN </h2>
+		<h2 id="points_title">Balance: <?php echo $balance;?> PLN </h2>
 
 		<div id="communicates">
 			<h2 id="communicates_title"><a href = "form.php"><button>Make a transfer</button></a></h2>
@@ -31,10 +31,10 @@ session_start();
 		$sql = "SELECT history.recipient, history.value, history.execution_date FROM history WHERE history.sender = $login_number";
 		$result = mysqli_query($db, $sql);
 
-		echo '<table id="points_table">
+		echo '<table id="points_table" cellpadding="6">
 			<tr>
 				<th>To</th>
-				<th>Cash</th>
+				<th>Amount</th>
 				<th>Date</th>
 				
 			</tr>';
@@ -42,7 +42,7 @@ session_start();
 		while($row = mysqli_fetch_assoc($result)) {
 			echo '<tr>' .
         	'<th>' . $row["recipient"].'</th>' .
-	        '<th>' . $row["value"].'</th>' .
+	        '<th>' . $row["value"]. ' PLN </th>' .
 	        '<th>' . $row["execution_date"].'</th>' .
 	        '</tr>';
 		}

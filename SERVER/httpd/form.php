@@ -33,7 +33,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 			<p id="note" ><a href="logout.php"><button>LOGOUT</button></a></p>
 		</header>
 		<div id="points_table_container">
-		<h2 id="points_title">Saldo: <?php echo $balance ?> PLN </h2>
+		<h2 id="points_title">Balance: <?php echo $balance ?> PLN </h2>
 		<form action = "" method = "post">
 			<label>Receiver:</label><input type = "number" name = "recipient"/><br /><br />
 			<label>Cash:</label><input type = "number" name = "value"/><br/><br />

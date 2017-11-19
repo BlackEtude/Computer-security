@@ -10,7 +10,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
    $count = mysqli_num_rows($result);
    $salt = "0";
    if($count != 1) {
-      echo '<p id="errormessage">error message</p>';
+      echo '<p id="errormessage"><font color="red">error message</font></p>';
       // exit();
    }
    $salt = $row['salt'];
@@ -31,7 +31,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 ?>
 
-<html>
+<!-- html>
 <head>
    <title>Logging</title>
    <style type = "text/css">
@@ -65,5 +65,66 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
          </div>
       </div>
    </div>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html>
+<style>
+
+
+form {
+    border: 4px solid #f1f1f1;
+}
+
+input[type=text], input[type=password] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+}
+
+.imgcontainer {
+    text-align: center;
+    margin: 20px 0 10px 0;
+}
+
+img.avatar {
+    width: 30%;
+    border-radius: 30%;
+}
+
+.container {
+    padding: 16px;
+}
+
+
+
+</style>
+<body>
+
+<h2>Your Safe Bank</h2>
+<div class="imgcontainer">
+  <img src="avatar.png" alt="Avatar" class="avatar">
+</div>
+<div class="container">
+  <form action = "" method = "post">
+    <label>Username:  </label><input type = "text" name = "username" required class = "box"/><br/><br/>
+    <label>Password:  </label><input type = "password" name = "password" required class = "box" /><br/><br />
+    <button type="submit">Log in</button><br />
+  </form>
+</div>
 </body>
 </html>
