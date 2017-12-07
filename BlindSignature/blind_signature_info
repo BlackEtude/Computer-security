@@ -1,0 +1,11 @@
+Przebieg "Blind signature"
+1. Wygenerowanie na serwerze pary kluczy publiczny i prywatny (N, e), (N, d)
+2. Klient - obliczenie m' (z kluczem publicznym na wejściu) i wysłanie do serwera
+			m' = hash(m) * r^e (mod N)
+3. Serwer - obliczenie podpisu: s'= (m')^d (mod N) i wysłanie do klienta
+4. Klient - usunięcie blind signature, podpis s = s'*r^-1 (mod N)
+5. Weryfikator - spr czy [s^e (mod N) == hash(m)]
+
+
+TODO:
+int PKCS5_PBKDF2_HMAC <- użyć do trzymania hasła do servera na dysku (min 5000 iteracji)
