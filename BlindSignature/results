@@ -1,0 +1,17 @@
+Generate times:
+Generate 2048 keys time: 348ms
+Generate 4096 keys time: 1480ms
+Generate 8192 keys time: 42156ms
+Generate 16384 keys time: 93397ms
+
+Signing times:
+2048: 21ms
+4096: 153ms
+8192: 1087ms
+16384: 8620ms
+
+Verifying times:
+2048: 0ms
+4096: 0ms
+8192: 4ms
+16384: 9ms

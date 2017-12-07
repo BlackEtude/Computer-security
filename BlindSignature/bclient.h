@@ -19,23 +19,25 @@
 #include <iomanip>
 #include <openssl/rsa.h>
 #include <openssl/sha.h>
+#include <chrono>
 #define SIGNATURER_BCLIENT_H
 
 
 class bclient {
-public:
-    bclient(int port, char* public_key_path, char* message_to_sign);
-    void read_publickey_from_file(char *path);
+private:
+    BIGNUM *N, *e, *r;
+    BN_CTX *ctx;
+    const char* hashed;
+
+    void load_publickey_from_file(char *path);
     BIGNUM *calculate_msg(char *msg);
     std::string sha256(std::string str);
     void communicate_with_server(int port, char *msg);
-    void unsign_msg(char *msg);
+    void remove_signature(char *msg_to_unsign);
     bool bverfy(BIGNUM *msg);
     ~bclient();
-private:
-    BIGNUM *N, *e;
-    BIGNUM *r;
-    const char* hashed;
+public:
+    bclient(int port, char* public_key_path, char* message_to_sign);
 };
 
 #endif //SIGNATURER_BCLIENT_H

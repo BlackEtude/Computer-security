@@ -8,18 +8,22 @@
 bclient::bclient(int port, char *path, char *message) {
     N = BN_new();
     e = BN_new();
+    r = BN_new();
+    ctx = BN_CTX_new();
 
-    //load public key (N, e)
-    read_publickey_from_file(path);
+    // Load public key (N, e)
+    load_publickey_from_file(path);
 
-    //prepare new message
+    // Prepare new message
     BIGNUM *x = calculate_msg(message);
-//    std::cout << "x: " << BN_bn2dec(x) << std::endl << std::endl;
+
+    //Connect with server socket to exchange msgs
     communicate_with_server(port, BN_bn2hex(x));
+    BN_free(x);
 }
 
-void bclient::read_publickey_from_file(char *path) {
-    std::cout << "Reading key from: " << path << std::endl;
+void bclient::load_publickey_from_file(char *path) {
+    std::cout << "Loading key from: " << path << std::endl << std::endl;
     std::string item_name;
     std::ifstream nameFileout;
     nameFileout.open(path);
@@ -43,20 +47,17 @@ void bclient::read_publickey_from_file(char *path) {
 }
 
 BIGNUM* bclient::calculate_msg(char *msg) {
+    // m' = hash(m) * r^e (mod N)
+
     std::string hashed_msg = sha256(msg);
-//    std::cout << "sha256('" << msg << "'):" << hashed_msg << std::endl;
 
-    const char *hmsg = hashed_msg.c_str();
+    const char *hashed_msg_char = hashed_msg.c_str();
     BIGNUM *m = BN_new();
-    BN_hex2bn(&m, hmsg);
-//    std::cout << "hmsg: " << BN_bn2dec(m) << std::endl << std::endl;
-
+    BN_hex2bn(&m, hashed_msg_char);
     hashed = BN_bn2dec(m);
 
-    r = BN_new();
     BIGNUM *one = BN_new();
     BIGNUM *gcd = BN_new();
-    BN_CTX *ctx = BN_CTX_new();
     BN_one(one);
 
     do {
@@ -71,12 +72,28 @@ BIGNUM* bclient::calculate_msg(char *msg) {
     BIGNUM *x = BN_new();
     BN_mod_exp(x, r, e, N, ctx);
     BN_mod_mul(x, m, x, N, ctx);
+
+    BN_free(one);
+    BN_free(gcd);
+    BN_free(m);
     return x;
 }
 
+std::string bclient::sha256(const std::string str) {
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256_CTX sha256;
+    SHA256_Init(&sha256);
+    SHA256_Update(&sha256, str.c_str(), str.size());
+    SHA256_Final(hash, &sha256);
+    std::stringstream ss;
+    for(int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
+        ss << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];
+    }
+    return ss.str();
+}
+
 void bclient::communicate_with_server(int port, char *msg) {
-    struct sockaddr_in address;
-    int sock = 0, valread;
+    int sock = 0;
     struct sockaddr_in serv_addr;
     char signed_msg[BUFFER_SIZE] = {0};
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -99,62 +116,65 @@ void bclient::communicate_with_server(int port, char *msg) {
         return;
     }
 
-    //send msg to server
+    // Send msg to server
     send(sock, msg, strlen(msg), 0);
-    //    std::cout << "Msg sent: " << msg << std::endl;
+    std::cout << "Msg sent to server: " << msg << std::endl << std::endl;
 
-    //get signed from server
-    valread = read(sock, signed_msg, BUFFER_SIZE);
-//    std::cout << "Received: " << signed_msg << std::endl;
+    // Get signed response
+    read(sock, signed_msg, BUFFER_SIZE);
+    std::cout << "Signed msg received from the server: " << signed_msg << std::endl << std::endl;
 
-
-    unsign_msg(signed_msg);
+    remove_signature(signed_msg);
 }
 
-std::string bclient::sha256(const std::string str) {
-    unsigned char hash[SHA256_DIGEST_LENGTH];
-    SHA256_CTX sha256;
-    SHA256_Init(&sha256);
-    SHA256_Update(&sha256, str.c_str(), str.size());
-    SHA256_Final(hash, &sha256);
-    std::stringstream ss;
-    for(int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-        ss << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];
-    }
-    return ss.str();
-}
+void bclient::remove_signature(char *msg_to_unsign) {
+    // s = s' * r^-1 (mod N)
 
-void bclient::unsign_msg(char *msg) {
     BIGNUM *from = BN_new();
-    BN_hex2bn(&from, msg);
-
     BIGNUM *inverse = BN_new();
     BIGNUM *s = BN_new();
+    BN_hex2bn(&from, msg_to_unsign);
 
-//    s = r.modInverse(big_int).multiply(muprime).mod(big_int)
-    BN_CTX *ctx;
-    ctx = BN_CTX_new();
     BN_mod_inverse(inverse, r, N, ctx);
     BN_mod_mul(s, inverse, from, N, ctx);
 
+    // Verify msg
     if(bverfy(s))
-        std::cout << "VERIFY: true" << std::endl;
+        std::cout << "VERIFY: true" << std::endl << std::endl;
     else
-        std::cout << "VERIFY: false" << std::endl;
+        std::cout << "VERIFY: false" << std::endl << std::endl;
+
+    BN_free(from);
+    BN_free(inverse);
+    BN_free(s);
 }
 
 bool bclient::bverfy(BIGNUM *msg) {
-    //verify:
-//    s^e (mod N)
+    // If [s^e (mod N) == hash(m)]
+
+    // Measure time
+    auto start = std::chrono::high_resolution_clock::now();
+
     BIGNUM *h = BN_new();
-    BN_CTX *ctx;
-    ctx = BN_CTX_new();
-
     BN_mod_exp(h, msg, e, N, ctx);
-    std::cout << "computed: " << BN_bn2dec(h) << std::endl;
-    std::cout << "original msg:" << hashed << std::endl;
 
-    return strcmp(hashed, BN_bn2dec(h)) == 0;
+    std::cout << "computed: " << BN_bn2dec(h) << std::endl;
+    std::cout << "original: " << hashed << std::endl;
+    int ret = strcmp(hashed, BN_bn2dec(h));
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "Verifying time: ";
+    std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count() << "ms" << std::endl;
+
+    BN_free(h);
+    return ret == 0;
+}
+
+bclient::~bclient() {
+    BN_free(N);
+    BN_free(e);
+    BN_free(r);
+    BN_CTX_free(ctx);
 }
 
 int main(int argc, char*argv[]) {
@@ -163,7 +183,6 @@ int main(int argc, char*argv[]) {
         return -1;
     }
 
-    //port, path to key, message
-    auto *client = new bclient(atoi(argv[1]), argv[2], argv[3]);
+    bclient *client = new bclient(atoi(argv[1]), argv[2], argv[3]);
     return 0;
 }

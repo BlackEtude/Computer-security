@@ -22,3 +22,6 @@
 hs_err_pid*
 Signaturer/config_server
 Signaturer/CMakeLists.txt
+BlindSignature/bserver
+BlindSignature/bclient
+BlindSignature/config_server

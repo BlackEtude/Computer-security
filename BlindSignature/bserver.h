@@ -13,7 +13,6 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
 #include <openssl/bn.h>
@@ -23,23 +22,29 @@
 #include <cstring>
 #include <memory>
 #include <spqr.hpp>
+#include <ctime>
+#include <cstdio>
+#include <chrono>
 #define SIGNATURER_BSERVER_H
 
 class bserver {
+private:
     RSA *r = NULL;
-    BIGNUM *big_int, *N, *d;
+    BIGNUM *num, *N, *d;
+    BN_CTX *ctx;            //for BIGNUM temp variables used by library functions
     int ret;
+
+    void generate_password(int length);
+    std::string sha256(std::string str);
+    void generate_key_pair(int key_length, char *path_to_save);
+    bool is_server_password_valid(char *user_pass);
+    char* sign_msg(BIGNUM *msg);
+    bool is_msg_in_group(BIGNUM *num);
+    void read_key_from_file(char *path);
 public:
     bserver();
     void setup(char* path);
-    void generate_key_pair(int key_length, char *path);
-    void server_listen(char *password, int port, char *key_path);
-    bool check_password(char* user_pass);
-    char* sign(BIGNUM* msg);
-    bool check_if_in_group(BIGNUM *num);
-    void generate_password(int length);
-    void read_key_from_file(char *path);
-    std::string sha256(std::string str);
+    void communicate_with_client(char *password, int port, char *key_path);
     ~bserver();
 };
 
