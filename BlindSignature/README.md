@@ -1,5 +1,9 @@
+# Compilation
+`./start.sh`
+
 # server setup mode
-`./bserver setup path_to_save_keys`
+`./bserver setup folder_to_save_keys`
+(e.g. `./bserver setup key/`)
 
 # server sign mode
 `./bserver sign ./bserver sign 'server_key' port path_to_private_key`
