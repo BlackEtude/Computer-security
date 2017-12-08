@@ -5,21 +5,23 @@
 #ifndef SIGNATURER_BCLIENT_H
 #include <iostream>
 #include <fstream>
+#include <sstream>
+#include <string>
+#include <iomanip>
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
+#include <chrono>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-#include <sstream>
-#include <string>
-#include <iomanip>
 #include <openssl/rsa.h>
 #include <openssl/sha.h>
-#include <chrono>
+
+#define BUFFER_SIZE 4096
 #define SIGNATURER_BCLIENT_H
 
 

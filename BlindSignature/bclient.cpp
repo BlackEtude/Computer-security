@@ -3,7 +3,6 @@
 //
 
 #include "bclient.h"
-#define BUFFER_SIZE 4096
 
 bclient::bclient(int port, char *path, char *message) {
     N = BN_new();

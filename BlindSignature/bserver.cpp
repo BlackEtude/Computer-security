@@ -3,7 +3,6 @@
 //
 
 #include "bserver.h"
-#define BUFFER_SIZE 4096
 
 bserver::bserver() {
     num = BN_new();
@@ -17,13 +16,87 @@ void bserver::setup(char* path) {
         std::cout << "Error. Ending" << std::endl;
     }
 
-    generate_password(16);
+    generate_password();
 
     // Generate key pairs
     generate_key_pair(2048, path);
-//    generate_key_pair(4096, path);
-//    generate_key_pair(8192, path);
+    generate_key_pair(4096, path);
+    generate_key_pair(8192, path);
     generate_key_pair(16384, path);
+}
+
+void bserver::generate_password() {
+    auto *p = generate_random_bytes(LENGTH);
+    auto *password = code_base64(p, LENGTH);
+    std::cout << "Generated pass: " << password << std::endl;
+    auto *s = generate_random_bytes(LENGTH);
+    auto *salt = code_base64(s, LENGTH);
+
+    unsigned char out[HASH_LEN];
+    memset(out, 0, sizeof out);
+
+    if(PKCS5_PBKDF2_HMAC(password, LENGTH, reinterpret_cast<const unsigned char *>(salt), LENGTH, ITERS, EVP_sha256(), HASH_LEN, out) != 1) {
+        std::cout << "Failure" << std::endl;
+    }
+
+    auto *key = code_base64(out, HASH_LEN);
+
+    std::ofstream out_pass("server_pass");
+    std::ofstream out_salt("server_salt");
+    out_pass << key;
+    out_salt << salt;
+}
+
+unsigned char* bserver::generate_random_bytes(int size) {
+    auto *buff = (unsigned char*)(malloc(size + 1));
+
+    if (!RAND_bytes(buff, size)) {
+        return NULL;
+    }
+
+    return buff;
+}
+
+char* bserver::code_base64(unsigned char *buff, int size) {
+    char *bytes = NULL;
+    BIO *b64, *out;
+    BUF_MEM *bptr;
+
+    // Create a base64 filter/sink
+    if ((b64 = BIO_new(BIO_f_base64())) == NULL) {
+        return NULL;
+    }
+
+    // Create a memory source
+    if ((out = BIO_new(BIO_s_mem())) == NULL) {
+        return NULL;
+    }
+
+    // Chain them
+    out = BIO_push(b64, out);
+    BIO_set_flags(out, BIO_FLAGS_BASE64_NO_NL);
+
+    // Write the bytes
+    BIO_write(out, buff, size);
+    BIO_flush(out);
+
+    // Now remove the base64 filter
+    out = BIO_pop(b64);
+
+    // Write the null terminating character
+    BIO_write(out, "\0", 1);
+    BIO_get_mem_ptr(out, &bptr);
+
+    // Allocate memory for the output and copy it to the new location
+    bytes = (char*)malloc(bptr->length);
+    strncpy(bytes, bptr->data, bptr->length);
+
+    // Cleanup
+    BIO_set_close(out, BIO_CLOSE);
+    BIO_free_all(out);
+//    free(buff);
+
+    return bytes;
 }
 
 void bserver::generate_key_pair(int key_length, char* path_to_save) {
@@ -44,10 +117,6 @@ void bserver::generate_key_pair(int key_length, char* path_to_save) {
     const BIGNUM *d = BN_new();
     const BIGNUM *e = BN_new();
     RSA_get0_key(r, &N, &e, &d);
-
-//    std::cout << "N: " << BN_bn2dec(N) << std::endl << std::endl;
-//    std::cout << "d: " << BN_bn2dec(d) << std::endl << std::endl;
-//    std::cout << "e: " << BN_bn2dec(e) << std::endl << std::endl;
 
     char p[30];
     FILE *file;
@@ -81,31 +150,13 @@ void bserver::generate_key_pair(int key_length, char* path_to_save) {
     std::cout << "Key " << key_length << " generated" << std::endl << std::endl;
 }
 
-void bserver::generate_password(int length) {
-    //TODO problems with some of these chars: !@#$%^&*()
-    const std::string::value_type allowed_chars[] {"123456789ABCDFGHJKLMNPQRSTVWXZabcdfghjklmnpqrstvwxz"};
-    thread_local std::default_random_engine randomEngine(std::random_device{}());
-    thread_local std::uniform_int_distribution<int> randomDistribution(0, sizeof(allowed_chars) - 1);
-    std::string str_pass(length ? length : 16, '\0');
-
-    for (std::string::value_type& c : str_pass)
-        c = allowed_chars[randomDistribution(randomEngine)];
-
-    std::string hashed_pass = sha256(str_pass);
-    std::cout << "Pass: " << str_pass << std::endl;
-
-    // Save password in config file
-    std::string input;
-    std::ofstream out("config_server");
-    out << hashed_pass;
-}
-
 void bserver::communicate_with_client(char *password, int port, char *key_path) {
     // If pass is not correct -> end
     if(!is_server_password_valid(password)) {
         std::cout << "Given password is not correct. Aborting..." << std::endl;
         return;
     }
+    std::cout << "Given password is correct" << std::endl << std::endl;
 
     // Load proper private key (N, d)
     read_key_from_file(key_path);
@@ -167,47 +218,36 @@ void bserver::communicate_with_client(char *password, int port, char *key_path) 
     BN_free(m);
 }
 
-bool bserver::is_msg_in_group(BIGNUM *num) {
-    // If num is in group -> gcd(num,N) == 1
-    BIGNUM *gcd = BN_new();
-    BIGNUM *one = BN_new();
-    BN_gcd(gcd, num, N, ctx);
-    int ret = BN_cmp(one, gcd);
-    BN_free(gcd);
-    BN_free(one);
-
-    return ret != 0;
-}
-
 bool bserver::is_server_password_valid(char *user_pass) {
-    // Load server's password from config
-    std::string line;
-    std::ifstream myfile ("config_server");
+    std::string pass;
+    std::ifstream myfile("server_pass");
     if (myfile.is_open()) {
-        while (std::getline (myfile, line));
+        while (std::getline(myfile, pass));
         myfile.close();
     }
-    // Hash pass given by user
-    std::string user_hashed = sha256(user_pass);
-    return line.compare(user_hashed) == 0;
-}
 
-char* bserver::sign_msg(BIGNUM *msg_to_sign) {
-    // s'= (m')^d (mod N)
+    std::string salt;
+    std::ifstream myfile2("server_salt");
+    if (myfile2.is_open()) {
+        while(std::getline(myfile2, salt));
+        myfile2.close();
+    }
 
-    // Measure time
-    auto start = std::chrono::high_resolution_clock::now();
+    unsigned char out[HASH_LEN];
+    memset(out, 0, sizeof out);
 
-    BIGNUM *result = BN_new();
-    BN_mod_exp(result, msg_to_sign, d, N, ctx);
+    // Hash user's pass
+    if(PKCS5_PBKDF2_HMAC(user_pass, LENGTH, reinterpret_cast<const unsigned char *>(salt.c_str()), LENGTH, ITERS, EVP_sha256(), HASH_LEN, out) != 1) {
+        std::cout << "Failure" << std::endl;
+    }
 
-    auto end = std::chrono::high_resolution_clock::now();
-    std::cout << "Signing time: ";
-    std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count() << "ms" << std::endl;
+    auto *key = code_base64(out, HASH_LEN);
 
-    char *ret = BN_bn2hex(result);
-    BN_free(result);
-    return ret;
+    if(key == pass) {
+        return true;
+    }
+
+    return false;
 }
 
 void bserver::read_key_from_file(char *path) {
@@ -234,38 +274,34 @@ void bserver::read_key_from_file(char *path) {
 //    std::cout << "d: " << BN_bn2dec(d) << std::endl << std::endl;
 }
 
-std::string bserver::sha256(std::string str) {
-    unsigned char hash[SHA256_DIGEST_LENGTH];
-    SHA256_CTX sha256;
-    SHA256_Init(&sha256);
-    SHA256_Update(&sha256, str.c_str(), str.size());
-    SHA256_Final(hash, &sha256);
-    std::stringstream ss;
-    for(int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-        ss << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];
-    }
-    return ss.str();
+bool bserver::is_msg_in_group(BIGNUM *num) {
+    // If num is in group -> gcd(num,N) == 1
+    BIGNUM *gcd = BN_new();
+    BIGNUM *one = BN_new();
+    BN_gcd(gcd, num, N, ctx);
+    int ret = BN_cmp(one, gcd);
+    BN_free(gcd);
+    BN_free(one);
+
+    return ret != 0;
 }
 
-//test for PKCS5_PBKDF2_HMAC
-void test() {
-    const unsigned int KEYLEN = 30;
-    const unsigned int SALTLEN = 30;
-    const unsigned char salt[SALTLEN] = "SDDSGE23455FDAASDSGE23455FDAG";
-    unsigned char out[KEYLEN];
-    int iter = 5000, keylen = 30;
-    char *password = "password";
-    memset(out, 0, sizeof out);
+char* bserver::sign_msg(BIGNUM *msg_to_sign) {
+    // s'= (m')^d (mod N)
 
-    int r = PKCS5_PBKDF2_HMAC(password, KEYLEN, salt, SALTLEN, iter, EVP_sha256(), keylen, out);
+    // Measure time
+    auto start = std::chrono::high_resolution_clock::now();
 
-    std::cout << "Generated hash: " << out << std::endl;
+    BIGNUM *result = BN_new();
+    BN_mod_exp(result, msg_to_sign, d, N, ctx);
 
-    std::string input;
-    std::ofstream output("config_server");
-    output << salt;
-    output << std::endl;
-    output << out;
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "Signing time: ";
+    std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count() << "ms" << std::endl;
+
+    char *ret = BN_bn2hex(result);
+    BN_free(result);
+    return ret;
 }
 
 bserver::~bserver() {
@@ -277,7 +313,6 @@ bserver::~bserver() {
 }
 
 int main(int argc, char*argv[]) {
-//    test();
     if(argc < 3) {
         std::cout << "Missing arguments. Aborting..." << std::endl;
         return -1;

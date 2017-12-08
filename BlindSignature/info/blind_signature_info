@@ -5,5 +5,3 @@ Przebieg "Blind signature"
 3. Serwer - obliczenie podpisu: s'= (m')^d (mod N) i wysłanie do klienta
 4. Klient - usunięcie blind signature: s = s'*r^-1 (mod N)
 5. Weryfikator - spr czy [s^e (mod N) == hash(m)]
-
-int PKCS5_PBKDF2_HMAC <- użyć do trzymania hasła do servera na dysku (min 5000 iteracji)

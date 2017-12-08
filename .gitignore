@@ -25,3 +25,5 @@ Signaturer/CMakeLists.txt
 BlindSignature/bserver
 BlindSignature/bclient
 BlindSignature/config_server
+BlindSignature/server_pass
+BlindSignature/server_salt
