@@ -192,30 +192,33 @@ void bserver::communicate_with_client(char *password, int port, char *key_path) 
         perror("server_listen");
         exit(EXIT_FAILURE);
     }
-    if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0) {
-        perror("accept");
-        exit(EXIT_FAILURE);
+
+    while(true) {
+        if ((new_socket = accept(server_fd, (struct sockaddr *) &address, (socklen_t *) &addrlen)) < 0) {
+            perror("accept");
+            exit(EXIT_FAILURE);
+        }
+
+        // Get message from client
+        read(new_socket, buffer, BUFFER_SIZE);
+        BIGNUM *m = BN_new();
+        BN_hex2bn(&m, buffer);
+        std::cout << "Message received from client" << std::endl;
+
+        // If x is not in Zn group -> abort
+        if (!is_msg_in_group(m)) {
+            std::cout << "Message x is not in Zn. Aborting..." << std::endl << std::endl;
+            return;
+        }
+        std::cout << "Message x is in Zn." << std::endl;
+
+        // Send signed message to client
+        std::cout << "Signing..." << std::endl;
+        char *signed_msg = sign_msg(m);
+        send(new_socket, signed_msg, strlen(signed_msg), 0);
+        std::cout << "Signed msg sent to client" << std::endl << std::endl;
+        BN_free(m);
     }
-
-    // Get message from client
-    read(new_socket, buffer, BUFFER_SIZE);
-    BIGNUM *m = BN_new();
-    BN_hex2bn(&m, buffer);
-    std::cout << "Message received from the client: " << BN_bn2hex(m) << std::endl << std::endl;
-
-    // If x is not in Zn group -> abort
-    if(!is_msg_in_group(m)) {
-        std::cout << "Message x is not in Zn. Aborting..." << std::endl << std::endl;
-        return;
-    }
-    std::cout << "Message x is in Zn." << std::endl << std::endl;
-
-    // Send signed message to client
-    char* signed_msg = sign_msg(m);
-    std::cout << "Signing..." << std::endl << std::endl;
-    send(new_socket, signed_msg, strlen(signed_msg), 0);
-    std::cout << "Signed msg sent to client: " << signed_msg << std::endl << std::endl;
-    BN_free(m);
 }
 
 bool bserver::is_server_password_valid(char *user_pass) {

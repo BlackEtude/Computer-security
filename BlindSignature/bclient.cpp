@@ -117,11 +117,11 @@ void bclient::communicate_with_server(int port, char *msg) {
 
     // Send msg to server
     send(sock, msg, strlen(msg), 0);
-    std::cout << "Msg sent to server: " << msg << std::endl << std::endl;
+    std::cout << "Msg sent to server " << std::endl << std::endl;
 
     // Get signed response
     read(sock, signed_msg, BUFFER_SIZE);
-    std::cout << "Signed msg received from the server: " << signed_msg << std::endl << std::endl;
+    std::cout << "Signed msg received from server " << std::endl << std::endl;
 
     remove_signature(signed_msg);
 }
