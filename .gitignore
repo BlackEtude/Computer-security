@@ -27,3 +27,14 @@ BlindSignature/bclient
 BlindSignature/config_server
 BlindSignature/server_pass
 BlindSignature/server_salt
+BlindSignature2/server_pass
+BlindSignature2/server_salt
+BlindSignature2/ex2/server_pass
+BlindSignature2/ex2/server_salt
+BlindSignature2/bclient
+BlindSignature2/bserver
+BlindSignature2/CMakeLists.txt
+BlindSignature2/ex2/bserver
+BlindSignature2/ex2/bclient
+BlindSignature2/info/git_java_source
+BlindSignature2/info/results
