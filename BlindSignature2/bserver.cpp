@@ -195,7 +195,7 @@ void bserver::communicate_with_client(char *password, int port, char *key_path) 
         exit(EXIT_FAILURE);
     }
 
-    for(; iter < 100; iter++) {
+    while(true) {
         if ((new_socket = accept(server_fd, (struct sockaddr *) &address, (socklen_t *) &addrlen)) < 0) {
             perror("accept");
             exit(EXIT_FAILURE);
@@ -327,10 +327,9 @@ char* bserver::sign_msg(BIGNUM *msg_to_sign) {
     BN_mod_mul(y, y, tmp, N, ctx);
 
     auto end = std::chrono::high_resolution_clock::now();
-//    std::cout << "Signing time: ";
+    std::cout << "Signing time: ";
     double diff = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
-//    std::cout << diff << "ms" << std::endl;
-    sign_times[iter] = diff;
+    std::cout << diff << "ms" << std::endl;
 
     char *ret = BN_bn2hex(y);
     BN_free(y);
@@ -371,18 +370,5 @@ int main(int argc, char*argv[]) {
     else {
         std::cout << "Wrong mode selected. Choose 'setup' or 'sign'" << std::endl;
     }
-
-    FILE *file;
-    file = fopen("signing2048" , "w+");
-
-    for(int i  = 0; i < 100; i++) {
-        fprintf(file, std::to_string(i).c_str());
-        fprintf(file, ";");
-        fprintf(file, std::to_string(server->sign_times[i]).c_str());
-        fprintf(file, "\n");
-    }
-
-    fclose(file);
-
     return 0;
 }

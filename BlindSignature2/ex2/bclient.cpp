@@ -190,9 +190,6 @@ int main(int argc, char*argv[]) {
         return -1;
     }
 
-    for(int i = 0; i < 100; i++) {
-        bclient *client = new bclient(atoi(argv[1]), argv[2], argv[3]);
-        sleep(1);
-    }
+    bclient *client = new bclient(atoi(argv[1]), argv[2], argv[3]);
     return 0;
 }

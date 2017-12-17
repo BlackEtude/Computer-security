@@ -48,7 +48,6 @@ private:
     BN_CTX *ctx;            //for BIGNUM temp variables used by library functions
     BN_MONT_CTX *ctx_mont;
     int ret;
-    int iter = 0;
 
     void generate_password();
     unsigned char* generate_random_bytes(int size);
@@ -63,8 +62,6 @@ public:
     void setup(char* path);
     void communicate_with_client(char *password, int port, char *key_path);
     ~bserver();
-
-    double sign_times[1000];
 };
 
 

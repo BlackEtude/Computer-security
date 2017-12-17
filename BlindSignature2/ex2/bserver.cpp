@@ -8,8 +8,6 @@ bserver::bserver() {
     num = BN_new();
     ctx = BN_CTX_new();
     ctx_mont = NULL ;
-
-//    sign_times = new double[1000];
 }
 
 void bserver::setup(char* path) {
@@ -24,8 +22,8 @@ void bserver::setup(char* path) {
     // Generate key pairs
     generate_key_pair(2048, path);
     generate_key_pair(4096, path);
-//    generate_key_pair(8192, path);
-//    generate_key_pair(16384, path);
+    generate_key_pair(8192, path);
+    generate_key_pair(16384, path);
 }
 
 void bserver::generate_password() {
@@ -196,7 +194,7 @@ void bserver::communicate_with_client(char *password, int port, char *key_path) 
         exit(EXIT_FAILURE);
     }
 
-    for(; iter < 100; iter++) {
+    while(true) {
         if ((new_socket = accept(server_fd, (struct sockaddr *) &address, (socklen_t *) &addrlen)) < 0) {
             perror("accept");
             exit(EXIT_FAILURE);
@@ -222,7 +220,6 @@ void bserver::communicate_with_client(char *password, int port, char *key_path) 
         std::cout << "Signed msg sent to client" << std::endl << std::endl;
         BN_free(m);
     }
-    std::cout << std::endl;
 }
 
 bool bserver::is_server_password_valid(char *user_pass) {
@@ -303,10 +300,9 @@ char* bserver::sign_msg(BIGNUM *msg_to_sign) {
     auto start = std::chrono::high_resolution_clock::now();
     BN_mod_exp_mont_consttime(result, msg_to_sign, d_const, N, ctx, ctx_mont);
     auto end = std::chrono::high_resolution_clock::now();
-//    std::cout << "Signing time: ";
+    std::cout << "Signing time: ";
     double diff = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
-//    std::cout << diff << "ms" << std::endl;
-    sign_times[iter] = diff;
+    std::cout << diff << "ms" << std::endl;
 
     BN_free(d_const);
 
@@ -349,18 +345,6 @@ int main(int argc, char*argv[]) {
     else {
         std::cout << "Wrong mode selected. Choose 'setup' or 'sign'" << std::endl;
     }
-
-    FILE *file;
-    file = fopen("signing4096" , "w+");
-
-    for(int i  = 0; i < 100; i++) {
-        fprintf(file, std::to_string(i).c_str());
-        fprintf(file, ";");
-        fprintf(file, std::to_string(server->sign_times[i]).c_str());
-        fprintf(file, "\n");
-    }
-
-    fclose(file);
 
     return 0;
 }
