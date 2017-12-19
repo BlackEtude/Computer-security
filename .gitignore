@@ -38,3 +38,13 @@ BlindSignature2/ex2/bserver
 BlindSignature2/ex2/bclient
 BlindSignature2/info/git_java_source
 BlindSignature2/info/results
+BlindSignature3/bserver
+BlindSignature3/info/blind_signature_info
+BlindSignature3/bclient
+BlindSignature3/info/git_java_source
+BlindSignature3/info/results
+BlindSignature3/README.md
+BlindSignature3/test
+BlindSignature3/server_salt
+BlindSignature3/server_pass
+BlindSignature3/test
