@@ -46,6 +46,7 @@ public:
     uint64_t benchmark(BIGNUM *msg, BIGNUM *expo, BIGNUM *modulus);
     void modular_exponentation(BIGNUM *x, BIGNUM *y, BIGNUM *m);
     double array_var(std::vector<double> array);
+    bool is_proper_diff(double var0, double var1);
 };
 
 

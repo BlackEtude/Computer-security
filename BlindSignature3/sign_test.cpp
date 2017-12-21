@@ -3,7 +3,7 @@
 //
 
 #include "sign_test.h"
-#define ITERS 1000000
+#define ITERS 300000
 
 sign_test::sign_test(char *priv_path, char *pub_path) {
     ctx = BN_CTX_new();
@@ -40,12 +40,16 @@ void sign_test::read_key_from_file(char *path, BIGNUM *x, BIGNUM *y) {
 }
 
 void sign_test::test() {
+    std::cout << "d: " << BN_bn2dec(d) << std::endl;
     BIGNUM *private_key = BN_new();
     BIGNUM *z = BN_new();
     BIGNUM *o = BN_new();
     BIGNUM *power_2 = BN_new();
     BIGNUM *two = BN_new();
     std::string final_key = "1";
+
+    // To count failed  attemps
+    int fails = 0;
     
     std::vector<double> zeros;
     std::vector<double> ones;
@@ -65,19 +69,22 @@ void sign_test::test() {
         BN_copy(z, private_key);
         BN_add(o, private_key, power_2);
         std::cout << "Bit no "<< i << std::endl;
+        // std::cout << "Zero: " << BN_bn2dec(z) << std::endl;
+        // std::cout << "One: " << BN_bn2dec(o) << std::endl;
 
         for(int j = 0; j < ITERS; j++) {
             // Prepare new message
             BIGNUM *rand_msg = generate_msg();
 
+            // Measure time of signing for private key
             server_time = sign_msg(rand_msg, d, N);
 
-            // For 0...1
+            // Measure time for new key 0...1
             local_time = sign_msg(rand_msg, z, N);
             diff = server_time - local_time;
             zeros.push_back(abs(diff));
 
-            // For 1...1
+            // Measure time for new key 1...1
             local_time = sign_msg(rand_msg, o, N);
             diff = server_time - local_time;
             ones.push_back(abs(diff));
@@ -92,20 +99,56 @@ void sign_test::test() {
         printf("'One' var: %e\n", var1);
 
         // Analize results and choose new exponent's bit
-        if(var1 < var0) {
-            BN_add(private_key, private_key, power_2);
-            std::cout << "VAR1 < VAR0" << std::endl;
-            final_key = '1' + final_key; 
+        // Diff between both vars are enough
+        if(!is_proper_diff(var0, var1)) {
+            if(fails < 6) {
+                i--;
+                std::cout << "REPEAT" << std::endl;
+                fails++;
+                continue;
+            }
+            else {
+                // Get new bit from user
+                fails = 0;
+                std::cout << "Give me a hint... :(" << std::endl << "Bit: ";
+                char bit;
+                std::cin >> bit;
+                if(bit == '1') {
+                    BN_add(private_key, private_key, power_2);
+                    final_key = final_key + '1';
+                }
+                else
+                    final_key = final_key + '0';
+            }
         }
+        // Diff is okey
         else {
-            std::cout << "VAR0 < VAR1" << std::endl;
-            final_key = '0' + final_key; 
-        }
+            // Set new bit
+            if(var1 < var0) {
+                BN_add(private_key, private_key, power_2);
+                std::cout << "VAR1 < VAR0" << std::endl;
+                final_key = final_key + '1';
+            }
+            else {
+                std::cout << "VAR0 < VAR1" << std::endl;
+                final_key = final_key + '0';
+            }
+            fails = 0;
+        }        
 
+        // Prepare next power of 2
         BN_CTX_start(ctx);
         BN_mul(power_2, power_2, two, ctx);
         BN_CTX_end(ctx);
-        std::cout << "Key: " << final_key << std::endl << std::endl << std::endl;
+
+        // Print key with padding
+        std::cout << "Key: ";
+        for(int i = final_key.length()-1; i >= 0; i--) {
+            std::cout << final_key[i];
+            if(i % 4 == 0)
+                std::cout << " ";
+        }
+        std::cout << std::endl << std::endl << std::endl;
 
         // Cleanup
         ones.clear();
@@ -122,9 +165,20 @@ void sign_test::test() {
     BN_free(two);
 }
 
+bool sign_test::is_proper_diff(double var0, double var1) {
+    std::string v0 = std::to_string((int)var0); 
+    std::string v1 = std::to_string((int)var1); 
+
+    // std::cout << "Var0: " << v0 << ", var1: " << v1 << std::endl;
+    if(v0.length() == v1.length()) 
+        return false;
+    else
+        return true;
+}
+
 BIGNUM* sign_test::generate_msg() {
     // m' = hash(m) * r^e (mod N)
-    int length = rand() % 10 + 3;
+    int length = rand() % 20 + 8;
 
     // Generate new msg
     static const std::string::value_type allowed_chars[] {"123456789BCDFGHJKLMNPQRSTVWXZbcdfghjklmnpqrstvwxz"};
@@ -179,7 +233,6 @@ std::string sign_test::sha256(const std::string str) {
 
 double sign_test::sign_msg(BIGNUM *msg_to_sign, BIGNUM *expo, BIGNUM *modulus) {
     // s'= (m')^d (mod N)
-
     double startsecs, endsecs, seconds;
     uint64_t cycles;
 
@@ -209,7 +262,7 @@ uint64_t sign_test::benchmark(BIGNUM *msg, BIGNUM *expo, BIGNUM *modulus) {
 
 uint64_t sign_test::rdtsc() {
     uint32_t lo, hi;
-    __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
+    __asm__ __volatile__ ("rdtscp" : "=a" (lo), "=d" (hi));
     return ( ((uint64_t)hi) << (uint32_t)32 )
            | ( ((uint64_t)lo) );
 }
