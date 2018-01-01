@@ -1,0 +1,87 @@
+sudo apt-get install apache2 apache2-dev
+
+W folderze z wsgi:
+./configure --with-python=/usr/bin/python3.6
+make
+make install
+sudo chmod 644 /usr/lib/apache2/modules/mod_wsgi.so
+
+
+Dobre dziango w dobrym miejscu:
+sudo -H pip3 install Django==1.11.7 -t /usr/local/lib/python3.6/dist-packages
+sudo -H pip3 install django-tables2 Django==1.11.7 -t /usr/local/lib/python3.6/dist-packages
+
+
+Uprawnienia dla bazy:
+sudo chown www-data:www-data lista8
+sudo chown www-data:www-data db.sqlite3
+
+CONFIG NORMALNY:
+# vim: syntax=apache ts=4 sw=4 sts=4 sr noet
+LoadModule wsgi_module /usr/lib/apache2/modules/mod_wsgi.so
+
+
+WSGIPythonPath /var/www/html/lista8/
+
+<VirtualHost 127.0.1.1:80>
+
+    ServerName localhost
+    ServerAlias example.com
+    ServerAdmin webmaster@example.com
+
+    DocumentRoot /var/www/html/lista8
+
+WSGIScriptAlias / /var/www/html/lista8/lista4/wsgi.py
+#WSGIPythonPath /var/www/html/lista8/
+
+<Directory /var/www/html/lista8/lista4>
+<Files wsgi.py>
+Require all granted
+</Files>
+</Directory>
+
+</VirtualHost>
+
+
+
+
+SSL:
+sudo a2enmod ssl
+
+
+
+<VirtualHost *:443>
+
+    ServerName localhost
+    ServerAlias example.com
+    ServerAdmin webmaster@example.com
+
+    DocumentRoot /var/www/html/lista8
+
+WSGIScriptAlias / /var/www/html/lista8/lista4/wsgi.py
+#WSGIPythonPath /var/www/html/lista8/
+
+<Directory /var/www/html/lista8/lista4>
+<Files wsgi.py>
+Require all granted
+</Files>
+</Directory>
+
+    SSLEngine on
+    SSLCertificateFile /var/www/html/lista8/certA.crt
+    SSLCertificateKeyFile /var/www/html/lista8/privkeyA.pem
+    SSLCACertificateFile /var/www/html/lista8/CAcert.crt
+
+
+SSLVerifyClient require
+SSLVerifyDepth 1
+SSLCACertificateFile /var/www/html/lista8/CAcert.crt
+
+</VirtualHost>
+
+
+
+
+przy wystawianiu certyfikatu przez CA nadać mu inny numer seryjny!!!
+eksportowanie certa:
+openssl pkcs12  -export -in certU.crt -inkey privkeyU.pem -out pkcsU.p12 -name "Jan Kowalski"

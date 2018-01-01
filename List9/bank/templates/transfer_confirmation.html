@@ -1,0 +1,40 @@
+{% extends "base.html"  %}
+
+{% block title %}
+    Wyślij przelew - {{ block.super }}
+{% endblock %}
+
+{% block content %}
+
+    <div class="content">
+        <div class="section-inner clearfix">
+
+        <h3>Zlecenie przelewu — sprawdź wprowadzone dane</h3>
+
+        {% if messages %}
+            <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+
+        <ul>
+            <li>Nazwa odbiorcy: {{ recipient_name }} </li>
+            <li>Numer konta odbiorcy: {{ recipient_account }}</li>
+            <li>Kwota: {{ amount }}</li>
+        </ul>
+        <form action="" method="post">
+            {% csrf_token %}
+{#            <td><input type="hidden" name="next" value="{{ next|default:'/homepage/' }}"></td>#}
+            <td><input type="hidden" name="confirm" value="true"></td>
+            <td><input type="hidden" name="recipient_name" value={{ recipient_name }}></td>
+            <td><input id = account type="hidden" name="recipient_account" value= {{ recipient_account }}></td>
+            <td><input type="hidden" name="amount" value="{{ amount }}"></td>
+            <td><input type="submit" value="Potwierdź zlecenie przelewu" ></td>
+        </form>
+
+        </div>
+    </div>
+
+{% endblock %}

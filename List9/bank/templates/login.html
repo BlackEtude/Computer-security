@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<style>
+
+
+form {
+    border: 4px solid #f1f1f1;
+}
+
+input[type=text], input[type=password] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+}
+
+.imgcontainer {
+    text-align: center;
+    margin: 20px 0 10px 0;
+}
+
+img.avatar {
+    width: 30%;
+    border-radius: 30%;
+}
+
+.container {
+    padding: 16px;
+}
+
+
+
+</style>
+<body>
+
+<h2>Your Safe Bank</h2>
+<div class="imgcontainer">
+  <img src="/static/avatar.png" alt="Avatar" class="avatar">
+</div>
+        {% if messages %}
+            <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+<div class="container">
+  <form action = "" method = "post">
+      {% csrf_token %}
+    <label>Username:  </label><input type = "text" name = "username" required class = "box"/><br/><br/>
+    <label>Password:  </label><input type = "password" name = "password" required class = "box" /><br/><br />
+      <script src='https://www.google.com/recaptcha/api.js'></script>
+      <div class="g-recaptcha" data-sitekey="6LdVH0AUAAAAAFV-TIhavFmhVCovfZefGUh5J86i"></div>
+      <input type="hidden" name="next" value="{{ next|default:'/homepage/' }}">
+
+    <button type="submit">Log in</button><br />
+  </form>
+    <a href="{% url 'social:begin' 'twitter' %}">Log in with Twitter</a><br>
+    <a href="{% url 'password_reset' %}">Forgot password?</a>
+</div>
+</body>
+</html>

@@ -1,0 +1,35 @@
+ {%load render_table from django_tables2 %}
+
+<html>
+<head>
+<title>Bank - Main Panel</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+	<div id="main_container">
+		<header id="main_title">
+			<h1> Welcome to Your Bank, {{ request.user.username }}! <br> Account: 64824</h1>
+			<p id="note" ><a href="/logout/"><button>LOGOUT</button></a></p>
+		</header>
+
+		<div id="points_table_container">
+		<h2 id="points_title">Balance: 999900000 PLN </h2>
+
+		<div id="communicates">
+			<h2 id="communicates_title"><a href ="/transfer_form/"><button>Make a transfer</button></a></h2>
+		</div>
+
+		<br><br>
+		<h2 id="points_title">History:</h2>
+
+            {% render_table sent %}
+
+	</div>
+</div>
+<footer>
+	Corporate Customer Service Center lines are active Monday to Friday 8 am - 6 pm
+</footer>
+</body>
+</html>
