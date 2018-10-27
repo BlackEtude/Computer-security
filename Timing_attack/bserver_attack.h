@@ -24,29 +24,30 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <random>
+#include <algorithm>
 
 #define BUFFER_SIZE 4096
 #define SIGNATURER_SIGN_TEST_H
 
 
-class sign_test {
+class bserver_attack {
 public:
     BIGNUM *N, *d, *e, *r;
     BN_CTX *ctx;
     
-    sign_test(char *priv_path, char *pub_path);
+    bserver_attack(char *priv_path, char *pub_path, int bits);
     void read_key_from_file(char *path, BIGNUM *x, BIGNUM *y);
     double sign_msg(BIGNUM *msg_to_sign, BIGNUM *expo, BIGNUM *modulus);
 
-    void test();
+    void test(int bits);
     BIGNUM *generate_msg();
     std::string sha256(std::string str);
     double cpu_seconds();
-    uint64_t rdtsc();
+    uint64_t rdtscp();
     uint64_t benchmark(BIGNUM *msg, BIGNUM *expo, BIGNUM *modulus);
     void modular_exponentation(BIGNUM *x, BIGNUM *y, BIGNUM *m);
     double array_var(std::vector<double> array);
-    bool is_proper_diff(double var0, double var1);
+    bool diff_is_enough(double var0, double var1);
 };
 
 

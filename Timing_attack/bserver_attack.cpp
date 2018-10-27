@@ -2,10 +2,10 @@
 // Created by pandemic on 17.12.17.
 //
 
-#include "sign_test.h"
+#include "bserver_attack.h"
 #define ITERS 300000
 
-sign_test::sign_test(char *priv_path, char *pub_path) {
+bserver_attack::bserver_attack(char *priv_path, char *pub_path, int bits) {
     ctx = BN_CTX_new();
     N = BN_new();
     d = BN_new();
@@ -17,10 +17,10 @@ sign_test::sign_test(char *priv_path, char *pub_path) {
     read_key_from_file(pub_path, N, e);
 
     // Run attack!
-    test();
+    test(bits);
 }
 
-void sign_test::read_key_from_file(char *path, BIGNUM *x, BIGNUM *y) {
+void bserver_attack::read_key_from_file(char *path, BIGNUM *x, BIGNUM *y) {
     std::string item_name;
     std::ifstream nameFileout;
     nameFileout.open(path);
@@ -39,7 +39,7 @@ void sign_test::read_key_from_file(char *path, BIGNUM *x, BIGNUM *y) {
     BN_hex2bn(&y, c);
 }
 
-void sign_test::test() {
+void bserver_attack::test(int bits) {
     std::cout << "d: " << BN_bn2dec(d) << std::endl;
     BIGNUM *private_key = BN_new();
     BIGNUM *z = BN_new();
@@ -48,9 +48,13 @@ void sign_test::test() {
     BIGNUM *two = BN_new();
     std::string final_key = "1";
 
-    // To count failed  attemps
-    int fails = 0;
-    
+    // Failed attempts counter
+    int repeats = 0;
+    int attempts = 0;
+    int sugg_zero = 0;
+    int sugg_one = 0;
+    char bit;
+
     std::vector<double> zeros;
     std::vector<double> ones;
 
@@ -64,27 +68,25 @@ void sign_test::test() {
     double server_time, local_time, diff;
     double var0, var1;
 
-    for(int i = 2; i < 18; i++) {
-        // New possible exponents: 0...1, 1...1
+    for(int i = 2; i <= bits; i++) {
+        // New possible exponent: 0...1 or 1...1
         BN_copy(z, private_key);
         BN_add(o, private_key, power_2);
         std::cout << "Bit no "<< i << std::endl;
-        // std::cout << "Zero: " << BN_bn2dec(z) << std::endl;
-        // std::cout << "One: " << BN_bn2dec(o) << std::endl;
 
         for(int j = 0; j < ITERS; j++) {
             // Prepare new message
             BIGNUM *rand_msg = generate_msg();
 
-            // Measure time of signing for private key
+            // Measure time for private key
             server_time = sign_msg(rand_msg, d, N);
 
-            // Measure time for new key 0...1
+            // Measure time for test key 0...1
             local_time = sign_msg(rand_msg, z, N);
             diff = server_time - local_time;
             zeros.push_back(abs(diff));
 
-            // Measure time for new key 1...1
+            // Measure time for test key 1...1
             local_time = sign_msg(rand_msg, o, N);
             diff = server_time - local_time;
             ones.push_back(abs(diff));
@@ -95,23 +97,33 @@ void sign_test::test() {
         var0 = array_var(zeros);
         var1 = array_var(ones);
 
-        printf("'Zero' var: %e\n", var0);
-        printf("'One' var: %e\n", var1);
+        printf("'Zero' variance: %e\n", var0);
+        printf("'One'  variance: %e\n", var1);
+
+        if(var1 < var0) {
+            std::cout << "VAR0 > VAR1" << std::endl;
+            sugg_one++;
+        }
+        else {
+            std::cout << "VAR0 < VAR1" << std::endl;
+            sugg_zero++;
+        }
 
         // Analize results and choose new exponent's bit
-        // Diff between both vars are enough
-        if(!is_proper_diff(var0, var1)) {
-            if(fails < 6) {
-                i--;
+        // Diff between both vars is not enough
+        if(!diff_is_enough(var0, var1)) {
+            if(repeats < 8) {
                 std::cout << "REPEAT" << std::endl;
-                fails++;
+                i--;
+                repeats++;
                 continue;
             }
             else {
                 // Get new bit from user
-                fails = 0;
-                std::cout << "Give me a hint... :(" << std::endl << "Bit: ";
-                char bit;
+                repeats = 0;
+                std::cout << sugg_zero*100/(sugg_zero+sugg_one) << " % '0' \t";
+                std::cout << sugg_one*100/(sugg_zero+sugg_one) << " % '1" << std::endl;
+                std::cout << "Give me a hint..." << std::endl << "Bit: ";
                 std::cin >> bit;
                 if(bit == '1') {
                     BN_add(private_key, private_key, power_2);
@@ -123,17 +135,30 @@ void sign_test::test() {
         }
         // Diff is okey
         else {
+            if(sugg_zero == sugg_one) {
+                i--;
+                continue;
+                std::cout << "REPEAT - zeros = ones" << std::endl;
+            }
+            std::cout << "Suggested: " << ((sugg_zero > sugg_one) ? '0': '1') << std::endl;
+            std::cout << "'0' : " << sugg_zero << ", '1' : " << sugg_one << std::endl;
+            std::cout << "Repeat y/n?" << std::endl;
+            std::cin >> bit;
+            if(bit == 'y') {
+                i--;
+                repeats - 0;
+                sugg_one = 0;
+                sugg_zero = 0;
+                continue;
+            }
             // Set new bit
-            if(var1 < var0) {
+            if(sugg_one > sugg_zero) {
                 BN_add(private_key, private_key, power_2);
-                std::cout << "VAR1 < VAR0" << std::endl;
                 final_key = final_key + '1';
             }
             else {
-                std::cout << "VAR0 < VAR1" << std::endl;
                 final_key = final_key + '0';
             }
-            fails = 0;
         }        
 
         // Prepare next power of 2
@@ -150,11 +175,17 @@ void sign_test::test() {
         }
         std::cout << std::endl << std::endl << std::endl;
 
+        repeats = 0;
+        sugg_zero = 0;
+        sugg_one = 0;
+
         // Cleanup
         ones.clear();
         ones.shrink_to_fit();
         zeros.clear();
         zeros.shrink_to_fit();
+
+        sleep(1);
     }
 
     // Cleanup
@@ -165,20 +196,104 @@ void sign_test::test() {
     BN_free(two);
 }
 
-bool sign_test::is_proper_diff(double var0, double var1) {
+bool bserver_attack::diff_is_enough(double var0, double var1) {
     std::string v0 = std::to_string((int)var0); 
     std::string v1 = std::to_string((int)var1); 
 
-    // std::cout << "Var0: " << v0 << ", var1: " << v1 << std::endl;
-    if(v0.length() == v1.length()) 
+    if(v0.length() == v1.length())
         return false;
     else
         return true;
 }
 
-BIGNUM* sign_test::generate_msg() {
+double bserver_attack::sign_msg(BIGNUM *msg_to_sign, BIGNUM *expo, BIGNUM *modulus) {
+    // s'= (m')^d (mod N)
+    double startsecs, endsecs, seconds;
+    uint64_t cycles;
+
+    startsecs = cpu_seconds();
+    cycles = benchmark(msg_to_sign, expo, modulus);
+    endsecs = cpu_seconds();
+    seconds = endsecs - startsecs;
+
+    return (double)cycles;
+}
+
+uint64_t bserver_attack::benchmark(BIGNUM *msg, BIGNUM *expo, BIGNUM *modulus) {
+    uint64_t started, finished;
+
+    started = rdtscp();
+    modular_exponentation(msg, expo, modulus);
+    finished = rdtscp();
+
+    return finished - started;
+}
+
+uint64_t bserver_attack::rdtscp() {
+    uint32_t lo, hi;
+    __asm__ __volatile__ ("rdtscp" : "=a" (lo), "=d" (hi));
+    return ( ((uint64_t)hi) << (uint32_t)32 )
+           | ( ((uint64_t)lo) );
+}
+
+void bserver_attack::modular_exponentation(BIGNUM *x, BIGNUM *y, BIGNUM *m) {
+    BIGNUM *result = BN_new();
+    BIGNUM *zero = BN_new();                        
+    BN_set_word(result, 1);
+    BN_set_word(zero, 0);
+
+    // x = x % m;
+    while(BN_cmp(y, zero) == 1) {                   // y > 0
+        // y is odd ->  x * result
+        if(BN_is_odd(y) == 1) {
+            BN_CTX_start(ctx);
+            BN_mod_mul(result, result, x, m, ctx);  // result = (result*x) % m;
+            BN_CTX_end(ctx);
+        }
+        // y must be even now => div by 2
+        BN_rshift1(y, y);                           // y = y >> 1;
+        BN_CTX_start(ctx);
+        BN_mod_mul(x, x, x, m, ctx);                // x = (x*x) % m;
+        BN_CTX_end(ctx);
+    }
+    BN_free(zero);
+    BN_free(result);
+}
+
+double bserver_attack::array_var(std::vector<double> array) {
+    unsigned long length = array.size();
+    double avg = 0;
+
+    // sort
+    // std::sort(array.begin(), array.end());
+    // std::reverse(array.begin(), array.end());
+
+    for (double i : array)
+        avg += i;
+
+    avg = avg/length;
+    // std::cout << "Average: " << avg << std::endl;
+
+    double var = 0;
+    for (double i : array)
+        var += (i - avg) * (i - avg);
+
+    var /= (length);
+    return var;
+}
+
+// Probably useless....
+double bserver_attack::cpu_seconds() {
+    struct timespec t;
+    if (!clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &t))
+        return (double)t.tv_sec + (double)t.tv_nsec / 1000000000.0;
+    else
+        return (double)clock() / (double)CLOCKS_PER_SEC;
+}
+
+BIGNUM* bserver_attack::generate_msg() {
     // m' = hash(m) * r^e (mod N)
-    int length = rand() % 20 + 8;
+    int length = rand() % 30 + 8;
 
     // Generate new msg
     static const std::string::value_type allowed_chars[] {"123456789BCDFGHJKLMNPQRSTVWXZbcdfghjklmnpqrstvwxz"};
@@ -218,7 +333,7 @@ BIGNUM* sign_test::generate_msg() {
     return x;
 }
 
-std::string sign_test::sha256(const std::string str) {
+std::string bserver_attack::sha256(const std::string str) {
     unsigned char hash[SHA256_DIGEST_LENGTH];
     SHA256_CTX sha256;
     SHA256_Init(&sha256);
@@ -231,102 +346,15 @@ std::string sign_test::sha256(const std::string str) {
     return ss.str();
 }
 
-double sign_test::sign_msg(BIGNUM *msg_to_sign, BIGNUM *expo, BIGNUM *modulus) {
-    // s'= (m')^d (mod N)
-    double startsecs, endsecs, seconds;
-    uint64_t cycles;
-
-    startsecs = cpu_seconds();
-    cycles = benchmark(msg_to_sign, expo, modulus);
-    endsecs = cpu_seconds();
-    seconds = endsecs - startsecs;
-
-//    printf("\t%15.0f CPU cycles\n", (double)cycles);
-//    printf("\t%15.0f CPU cycles per second\n", (double)cycles / seconds);
-//    printf("\t( %13.3f GHz)\n", (double)cycles / seconds / 1000000000.0);
-//    printf("\t%15.9f seconds\n", seconds);
-//    printf("-----------------------------------------------------------\n\n");
-
-    return (double)cycles;
-}
-
-uint64_t sign_test::benchmark(BIGNUM *msg, BIGNUM *expo, BIGNUM *modulus) {
-    uint64_t started, finished;
-
-    started = rdtsc();
-    modular_exponentation(msg, expo, modulus);
-    finished = rdtsc();
-
-    return finished - started;
-}
-
-uint64_t sign_test::rdtsc() {
-    uint32_t lo, hi;
-    __asm__ __volatile__ ("rdtscp" : "=a" (lo), "=d" (hi));
-    return ( ((uint64_t)hi) << (uint32_t)32 )
-           | ( ((uint64_t)lo) );
-}
-
-void sign_test::modular_exponentation(BIGNUM *x, BIGNUM *y, BIGNUM *m) {
-    BIGNUM *result = BN_new();
-    BIGNUM *zero = BN_new();                        
-    BN_set_word(result, 1);
-    BN_set_word(zero, 0);
-
-
-    //    x = x % m;
-    while(BN_cmp(y, zero) == 1) {                   // y > 0
-        //y is odd -> mul x with result
-        if(BN_is_odd(y) == 1) {
-            BN_CTX_start(ctx);
-            BN_mod_mul(result, result, x, m, ctx);  // result = (result*x) % m;
-            BN_CTX_end(ctx);
-        }
-        //y must be even now => div by 2
-        BN_rshift1(y, y);                           // y = y >> 1;
-        BN_CTX_start(ctx);
-        BN_mod_mul(x, x, x, m, ctx);                // x = (x*x) % m;
-        BN_CTX_end(ctx);
-    }
-    BN_free(zero);
-    BN_free(result);
-}
-
-double sign_test::array_var(std::vector<double> array) {
-    unsigned long length = array.size();
-    double avg = 0;
-
-    for (double i : array)
-        avg += i;
-
-    avg = avg/length;
-
-    double var = 0;
-    for (double i : array)
-        var += (i - avg) * (i - avg);
-
-    var /= (length);
-    return var;
-}
-
-// Perhaps useless....
-double sign_test::cpu_seconds() {
-    struct timespec t;
-    if (!clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &t))
-        return (double)t.tv_sec + (double)t.tv_nsec / 1000000000.0;
-    else
-        return (double)clock() / (double)CLOCKS_PER_SEC;
-}
-
 int main(int argc, char* argv[]) {
 
-    //start: ./test key/private2048 key/public2048
-    if(argc < 3) {
+    //start: ./test key/private2048 key/public2048 2048
+    if(argc < 4) {
         std::cout << "Missing arguments. Aborting..." << std::endl;
         return -1;
     }
 
-    auto *test = new sign_test(argv[1], argv[2]);
+    new bserver_attack(argv[1], argv[2], atoi(argv[3]));
 
     return 0;
 }
